@@ -1,36 +1,106 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# World Radio Map 🌎📻
 
-## Getting Started
+An interactive web application that displays radio stations from around the world on an interactive map. Discover and listen to radio stations from different countries and cultures with a beautiful user interface and real-time streaming capabilities.
 
-First, run the development server:
+## ✨ Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- **Interactive World Map**: Navigate a detailed world map with country borders and labels
+- **Radio Station Discovery**: Explore thousands of radio stations with geographic data
+- **Live Streaming**: Listen to radio stations in real-time with playback controls
+- **Station Information**: View details about each station including country, codec, and bitrate
+- **Responsive Design**: Clean and modern UI that works across devices
+
+## 🛠️ Technologies Used
+
+- **[Next.js](https://nextjs.org/)**: React framework for server-rendered applications
+- **[React Simple Maps](https://www.react-simple-maps.io/)**: D3-based geographic visualization library
+- **[Radio Browser API](https://www.radio-browser.info/)**: Public API for radio station data
+- **[Howler.js](https://howlerjs.com/)**: Audio library for handling streaming media
+- **[Tailwind CSS](https://tailwindcss.com/)**: Utility-first CSS framework for styling
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Node.js 18.x or higher
+- npm, yarn, or pnpm
+
+### Installation
+
+1. Clone the repository:
+   ```bash
+   git clone <repository-url>
+   cd radio-node
+   ```
+
+2. Install dependencies:
+   ```bash
+   npm install
+   # or
+   yarn install
+   # or
+   pnpm install
+   ```
+
+3. Start the development server:
+   ```bash
+   npm run dev
+   # or
+   yarn dev
+   # or
+   pnpm dev
+   ```
+
+4. Open [http://localhost:3000](http://localhost:3000) in your browser to see the application
+
+## 📖 How to Use
+
+1. **Navigate the Map**: Drag to pan around and use the zoom controls to zoom in/out
+2. **Discover Stations**: Hover over station markers to see station names
+3. **Listen to Stations**: Click on a station marker to select and begin playback
+4. **Control Playback**: Use the audio player at the bottom to play/pause and adjust volume
+
+## 🏗️ Project Structure
+
+```
+radio-node/
+├── app/
+│   ├── components/
+│   │   ├── AudioPlayer.tsx   # Handles audio streaming and controls
+│   │   └── WorldMap.tsx      # Renders the interactive world map with station markers
+│   ├── services/
+│   │   └── radioService.ts   # API service for fetching radio station data
+│   ├── globals.css           # Global styles
+│   ├── layout.tsx            # Application layout component
+│   └── page.tsx              # Main entry point and page component
+├── public/                   # Static assets
+└── ...                       # Configuration files
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🔄 Radio Station Data
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+This application leverages the Radio Browser API to display radio stations from around the world. Some features:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- Automatic fetching of stations with geographic coordinates
+- Fallback mechanism for important countries with missing station data
+- Random coordinate assignment for stations without geographic data within country boundaries
 
-## Learn More
+## 🤝 Contributing
 
-To learn more about Next.js, take a look at the following resources:
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 📄 License
 
-## Deploy on Vercel
+This project is licensed under the MIT License - see the LICENSE file for details.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 🙏 Acknowledgements
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- [Radio Browser API](https://www.radio-browser.info/) for providing open access to radio station data
+- [React Simple Maps](https://www.react-simple-maps.io/) for the map visualization library
+- [Howler.js](https://howlerjs.com/) for the audio streaming capabilities
