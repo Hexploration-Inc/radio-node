@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, memo } from 'react';
 import {
   ComposableMap,
   Geographies,
@@ -11,6 +11,13 @@ import { RadioStation } from '../services/radioService';
 
 // World map topojson file - using a more detailed source with better borders
 const geoUrl = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
+
+// Default map settings
+const DEFAULT_CENTER: [number, number] = [0, 20];
+const DEFAULT_ZOOM = 1;
+const MIN_ZOOM = 1;
+const MAX_ZOOM = 4;
+const ZOOM_STEP = 1.5; // Larger step for more noticeable zoom changes
 
 // Major countries to label on the map for better orientation
 const COUNTRY_LABELS = [
@@ -36,15 +43,73 @@ interface WorldMapProps {
   currentStation: RadioStation | null;
 }
 
-const WorldMap: React.FC<WorldMapProps> = ({ stations, onStationSelect, currentStation }) => {
+const WorldMap: React.FC<WorldMapProps> = memo(({ stations, onStationSelect, currentStation }) => {
   const [hoveredStation, setHoveredStation] = useState<RadioStation | null>(null);
+
+  // States for map position
+  const [center, setCenter] = useState<[number, number]>(DEFAULT_CENTER);
+  const [zoom, setZoom] = useState<number>(DEFAULT_ZOOM);
 
   const handleMarkerClick = useCallback((station: RadioStation) => {
     onStationSelect(station);
   }, [onStationSelect]);
 
+  // Zoom control functions
+  const handleZoomIn = useCallback(() => {
+    setZoom(prev => Math.min(MAX_ZOOM, prev * ZOOM_STEP));
+  }, []);
+
+  const handleZoomOut = useCallback(() => {
+    setZoom(prev => Math.max(MIN_ZOOM, prev / ZOOM_STEP));
+  }, []);
+  
+  // This is called after the map is dragged
+  const handleMoveEnd = useCallback((position: { coordinates: [number, number]; zoom: number }) => {
+    setCenter(position.coordinates);
+    setZoom(position.zoom);
+  }, []);
+
   return (
     <div className="w-full h-[75vh] bg-gray-900 rounded-xl shadow-md overflow-hidden relative">
+      {/* Zoom controls */}
+      <div className="absolute top-4 right-4 z-10 flex flex-col gap-2">
+        <button 
+          onClick={handleZoomIn}
+          className="bg-gray-800 hover:bg-gray-700 text-white font-bold p-2 rounded shadow-lg transition-colors"
+          aria-label="Zoom in"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd" />
+          </svg>
+        </button>
+        <button 
+          onClick={handleZoomOut}
+          className="bg-gray-800 hover:bg-gray-700 text-white font-bold p-2 rounded shadow-lg transition-colors"
+          aria-label="Zoom out"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M5 10a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1z" clipRule="evenodd" />
+          </svg>
+        </button>
+        <button 
+          onClick={() => {
+            setZoom(DEFAULT_ZOOM);
+            setCenter(DEFAULT_CENTER);
+          }}
+          className="bg-gray-800 hover:bg-gray-700 text-white font-bold p-2 rounded shadow-lg transition-colors"
+          aria-label="Reset view"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd" />
+          </svg>
+        </button>
+      </div>
+      
+      {/* Map help tooltip */}
+      <div className="absolute top-4 left-4 z-10 bg-gray-800 bg-opacity-80 text-white text-xs p-2 rounded">
+        <p>Drag to pan | Wheel to zoom | Double-click to zoom in</p>
+      </div>
+      
       <ComposableMap
         projection="geoMercator"
         projectionConfig={{
@@ -58,7 +123,19 @@ const WorldMap: React.FC<WorldMapProps> = ({ stations, onStationSelect, currentS
           outline: 'none',
         }}
       >
-        <ZoomableGroup zoom={1} minZoom={1} maxZoom={3}>
+        <ZoomableGroup 
+          zoom={zoom}
+          center={center}
+          onMoveStart={position => {
+            // Optional: Add any animation or state changes when movement starts
+          }}
+          onMove={({ zoom }) => {
+            // Optional: Track movement in real-time if needed
+          }}
+          onMoveEnd={handleMoveEnd}
+          minZoom={MIN_ZOOM}
+          maxZoom={MAX_ZOOM}
+        >
       
           <Geographies geography={geoUrl}>
             {({ geographies }) =>
@@ -139,39 +216,7 @@ const WorldMap: React.FC<WorldMapProps> = ({ stations, onStationSelect, currentS
                 }}
                 className="hover:fill-blue-400"
               />
-              {(hoveredStation?.id === station.id || currentStation?.id === station.id) && (
-                <g transform="translate(0, -15)">
-                  <rect
-                    x="-35"
-                    y="-15"
-                    width="70"
-                    height="20"
-                    rx="5"
-                    fill="rgba(0, 0, 0, 0.8)"
-                  />
-                  <text
-                    textAnchor="middle"
-                    y="-3"
-                    style={{ 
-                      fontSize: '8px',
-                      fill: "#FFFFFF",
-                      fontWeight: 'bold',
-                    }}
-                  >
-                    {station.name.length > 12 ? station.name.substring(0, 10) + '...' : station.name}
-                  </text>
-                  <text
-                    textAnchor="middle"
-                    y="5"
-                    style={{ 
-                      fontSize: '7px',
-                      fill: "#FFFFFF",
-                    }}
-                  >
-                    {station.country}
-                  </text>
-                </g>
-              )}
+
           </Marker>
         ))}
         </ZoomableGroup>
@@ -188,8 +233,10 @@ const WorldMap: React.FC<WorldMapProps> = ({ stations, onStationSelect, currentS
           <span>Selected Station</span>
         </div>
       </div>
+      
+
     </div>
   );
-};
+});
 
 export default WorldMap;
